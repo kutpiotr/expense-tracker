@@ -105,7 +105,7 @@ expense-tracker/
 ### Backend
 
 ```bash
-git clone <https://github.com/twoj-username/expense-tracker.git>
+git clone https://github.com/twoj-username/expense-tracker.git
 cd expense-tracker
 python -m venv venv
 # Windows:     .\venv\Scripts\Activate.ps1
