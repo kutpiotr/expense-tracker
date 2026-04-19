@@ -1,5 +1,8 @@
 from pydantic import BaseModel, Field, field_validator
 import re
+from datetime import date
+from decimal import Decimal
+
 
 HEX_COLOR_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
@@ -52,3 +55,27 @@ class CategoryUpdate(BaseModel):
         if not HEX_COLOR_RE.match(v):
             raise ValueError("color must be a hex code in format #RRGGBB")
         return v
+
+
+class TransactionCreate(BaseModel):
+    amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
+    transaction_date: date
+    description: str = Field(default="", max_length=255)
+    category_id: int = Field(gt=0)
+
+    @field_validator("description")
+    @classmethod
+    def description_stripped(cls, v: str) -> str:
+        return v.strip()
+
+
+class TransactionUpdate(BaseModel):
+    amount: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)
+    transaction_date: date | None = None
+    description: str | None = Field(default=None, max_length=255)
+    category_id: int | None = Field(default=None, gt=0)
+
+    @field_validator("description")
+    @classmethod
+    def description_stripped(cls, v: str | None) -> str | None:
+        return v.strip() if v is not None else None

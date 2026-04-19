@@ -5,51 +5,53 @@ Base URL: `http://localhost:5000`
 ## Categories
 
 ### `GET /api/categories`
-Zwraca listę wszystkich kategorii, posortowanych alfabetycznie.
+Returns a list of all categories, sorted alphabetically.
 
 **Response 200:**
 ```json
 [
-  {"id": 1, "name": "Jedzenie", "color": "#E24B4A", "created_at": "2026-04-19T10:30:00"},
-  {"id": 2, "name": "Transport", "color": "#378ADD", "created_at": "2026-04-19T10:31:00"}
+  {“id”: 1, “name”: “Food”, “color”: “#E24B4A”, ‘created_at’: “2026-04-19T10:30:00”},
+  {“id”: 2, “name”: “Transport”, “color”: “#378ADD”, ‘created_at’: “2026-04-19T10:31:00”}
 ]
 ```
 
 ### `GET /api/categories/<id>`
-Zwraca pojedynczą kategorię.
+Returns a single category.
 
-**Response 200:** obiekt kategorii.
-**Response 404:** kategoria nie istnieje.
+**Response 200:** category object.
+**Response 404:** category does not exist.
 
 ### `POST /api/categories`
-Tworzy nową kategorię.
+Creates a new category.
 
 **Request body:**
 ```json
-{"name": "Jedzenie", "color": "#E24B4A"}
+{“name”: “Food”, ‘color’: “#E24B4A”}
 ```
 
-- `name` — wymagane, 1-50 znaków (po strip).
-- `color` — opcjonalne (domyślnie `#888888`), format `#RRGGBB`.
+- `name` — required, 1–50 characters (after stripping).
+- `color` — optional (default `#888888`), format `#RRGGBB`.
 
-**Response 201:** utworzona kategoria.
-**Response 400:** błąd walidacji.
-**Response 409:** nazwa już istnieje.
+**Response 201:** category created.
+**Response 400:** validation error.
+**Response 409:** name already exists.
 
 ### `PUT /api/categories/<id>`
-Aktualizuje kategorię. Oba pola opcjonalne — aktualizowane są tylko przesłane.
+Updates a category. Both fields are optional — only the ones sent are updated.
 
-**Request body (przykład — sama zmiana koloru):**
+**Request body (example — changing the color only):**
 ```json
-{"color": "#F0997B"}
+{“color”: “#F0997B”}
 ```
 
-**Response 200:** zaktualizowana kategoria.
-**Response 400:** błąd walidacji.
-**Response 404:** kategoria nie istnieje.
+**Response 200:** Category updated.
+**Response 400:** Validation error.
+**Response 404:** Category does not exist.
 
 ### `DELETE /api/categories/<id>`
-Usuwa kategorię.
+Deletes a category.
 
-**Response 204:** sukces, pusty body.
-**Response 404:** kategoria nie istnieje.
+**Response 204:** success, empty body.
+**Response 404:** category does not exist.
+
+Translated with DeepL.com (free version)

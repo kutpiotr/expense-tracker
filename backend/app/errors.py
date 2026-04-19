@@ -43,3 +43,7 @@ def register_error_handlers(app):
     @app.errorhandler(400)
     def handle_bad_request(e):
         return jsonify({"error": "bad_request", "message": str(e)}), 400
+
+    @app.errorhandler(ValueError)
+    def handle_value_error(e: ValueError):
+        return jsonify({"error": "bad_request", "message": str(e)}), 400
