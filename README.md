@@ -165,6 +165,6 @@ flask db upgrade
 flask run
 ```
 
-## License
-
-Personal portfolio project — free to use as a reference.
+## Autor 
+Piotr Kut 
+Student kierunku Inżynieria i Analiza Danych.
