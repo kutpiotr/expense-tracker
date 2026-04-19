@@ -79,3 +79,23 @@ class TransactionUpdate(BaseModel):
     @classmethod
     def description_stripped(cls, v: str | None) -> str | None:
         return v.strip() if v is not None else None
+
+
+from typing import Literal
+from datetime import date
+
+
+class MonthlyStatsParams(BaseModel):
+    year: int = Field(ge=2000, le=2100)
+    month: int = Field(ge=1, le=12)
+
+
+class DateRangeParams(BaseModel):
+    date_from: date | None = None
+    date_to: date | None = None
+
+
+class TrendParams(BaseModel):
+    date_from: date | None = None
+    date_to: date | None = None
+    granularity: Literal["day", "month"] = "day"

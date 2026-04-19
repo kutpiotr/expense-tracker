@@ -21,7 +21,9 @@ def create_app(config_class=Config):
     from app import models  # noqa: F401
     from app.api.transactions import bp as transactions_bp
     from app.api.categories import bp as categories_bp
+    from app.api.stats import bp as stats_bp
 
+    app.register_blueprint(stats_bp)
     app.register_blueprint(transactions_bp)
     app.register_blueprint(categories_bp)
 
