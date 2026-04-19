@@ -122,7 +122,7 @@ def update_transaction(transaction_id: int):
     if payload.amount is not None:
         transaction.amount = payload.amount
     if payload.transaction_date is not None:
-        transaction.transaction_date = payload.date
+        transaction.transaction_date = payload.transaction_date
     if payload.description is not None:
         transaction.description = payload.description
 

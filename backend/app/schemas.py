@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, field_validator
 import re
 from datetime import date
 from decimal import Decimal
+from typing import Literal
+from datetime import date
 
 
 HEX_COLOR_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
@@ -79,10 +81,6 @@ class TransactionUpdate(BaseModel):
     @classmethod
     def description_stripped(cls, v: str | None) -> str | None:
         return v.strip() if v is not None else None
-
-
-from typing import Literal
-from datetime import date
 
 
 class MonthlyStatsParams(BaseModel):

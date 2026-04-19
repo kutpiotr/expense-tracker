@@ -1,6 +1,6 @@
 from datetime import date
 from flask import Blueprint, jsonify, request
-from sqlalchemy import func, case, and_
+from sqlalchemy import func, and_
 from app.extensions import db
 from app.models import Transaction, Category
 from app.schemas import MonthlyStatsParams, DateRangeParams, TrendParams
