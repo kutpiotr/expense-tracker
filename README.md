@@ -21,7 +21,7 @@ daily average, active days. A doughnut chart breaks down spending by category,
 and a line chart shows the daily trend. Use the month selector to navigate
 historical periods.
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard](docs/screenshots/dashboard_2.png)
 
 ### Transaction management with filtering
 
