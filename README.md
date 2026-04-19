@@ -1,155 +1,170 @@
 # Expense Tracker
 
-A personal expense tracking web application. Log transactions, browse their
-history with filtering and sorting, manage expense categories, and analyze
-spending habits through a dashboard with charts and summaries.
+A full-stack personal finance application for tracking expenses, managing
+categories, and visualizing spending habits. Built as a portfolio project to
+demonstrate proficiency in Python/Flask, Vue 3, SQL, and REST API design.
 
-Single-user and local — no authentication, no cloud deployment. Intended to be
-run on your own machine as a personal tool.
+![Dashboard overview](docs/screenshots/dashboard.png)
 
-## Stack
+## Tech stack
 
-- **Backend:** Python 3.14, Flask, Flask-SQLAlchemy, Flask-Migrate, Pydantic
-- **Frontend:** Vue 3, Vite *(in progress)*
-- **Database:** SQLite (default), any SQLAlchemy-supported backend via
-  `DATABASE_URL`
-- **Communication:** REST API, JSON payloads
+**Backend** Python 3.14 · Flask · SQLAlchemy · Flask-Migrate · Pydantic
+**Frontend** Vue 3 · Vite · Vue Router · Chart.js
+**Database** SQLite (PostgreSQL-compatible via `DATABASE_URL`)
 
-## Project structure
+## Features
+
+### Dashboard with monthly analytics
+
+At-a-glance summary of the current month: total spent, transaction count,
+daily average, active days. A doughnut chart breaks down spending by category,
+and a line chart shows the daily trend. Use the month selector to navigate
+historical periods.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Transaction management with filtering
+
+Full CRUD with server-side filtering by date range, category, and
+description. Search input is debounced to avoid hammering the API. A modal
+form handles both create and edit flows with inline validation messages from
+the backend.
+
+![Transactions list](docs/screenshots/transactions.png)
+![Transaction form](docs/screenshots/transaction-form.png)
+
+### Category management
+
+Create custom categories with colors used throughout the app for
+visualization. Deleting a category cascades to its transactions via an
+explicit database constraint.
+
+![Categories](docs/screenshots/categories.png)
+
+## Architecture
 
 ```
 expense-tracker/
-├── backend/
+├── backend/                    # Flask API
 │   ├── app/
-│   │   ├── __init__.py       # application factory
-│   │   ├── extensions.py     # SQLAlchemy, Migrate, CORS instances
-│   │   ├── config.py         # configuration
-│   │   ├── models.py         # ORM models
-│   │   ├── schemas.py        # Pydantic validation schemas
-│   │   ├── errors.py         # centralized error handlers
+│   │   ├── __init__.py         # application factory
+│   │   ├── extensions.py       # SQLAlchemy, CORS, Migrate instances
+│   │   ├── config.py           # environment-based configuration
+│   │   ├── models.py           # ORM models
+│   │   ├── schemas.py          # Pydantic validation schemas
+│   │   ├── errors.py           # centralized error handlers
 │   │   └── api/
-│   │       ├── categories.py   # /api/categories blueprint
-│   │       ├── transactions.py # /api/transactions blueprint
-│   │       ├── stats.py        # /api/stats blueprint
-│   │       └── stats_helpers.py
-│   ├── migrations/           # Alembic migration scripts
-│   ├── instance/             # SQLite database (gitignored)
-│   ├── run.py                # entrypoint
-│   └── .flaskenv             # Flask environment variables
-├── frontend/                 # Vue 3 application (in progress)
-├── API.md                    # REST API reference
-├── README.md
-├── requirements.txt
-└── .gitignore
+│   │       ├── categories.py   # /api/categories endpoints
+│   │       ├── transactions.py # /api/transactions endpoints
+│   │       └── stats.py        # /api/stats aggregation endpoints
+│   ├── migrations/             # Alembic migration scripts
+│   ├── seed.py                 # example data generator
+│   └── run.py                  # entry point
+│
+├── frontend/                   # Vue 3 SPA
+│   └── src/
+│       ├── api/                # thin wrappers over fetch, one file per resource
+│       ├── composables/        # reusable reactive logic (useApi, useDebouncedRef)
+│       ├── components/         # reusable UI (BaseButton, BaseModal, charts...)
+│       ├── views/              # one component per route
+│       ├── utils/              # formatting helpers
+│       └── router/             # route definitions
+│
+├── API.md                      # full REST API reference
+└── README.md
 ```
 
-## Running the backend
+### Design decisions worth mentioning
+
+- **Application factory pattern** on the backend, with blueprints per resource.
+  Makes the app testable and avoids circular imports.
+- **Pydantic schemas** centralize input validation. Endpoints never validate
+  manually — they parse a schema, and invalid input becomes a structured 400
+  response.
+- **`Numeric(12, 2)` for amounts**, never `Float`. Monetary precision is
+  non-negotiable.
+- **Aggregations happen in SQL**, not Python. Dashboard endpoints use
+  `GROUP BY`, `SUM`, `COUNT` — no per-row iteration on the server.
+- **Explicit foreign key enforcement in SQLite** via a connection-level
+  `PRAGMA foreign_keys=ON` listener. Otherwise cascade deletes silently fail.
+- **Frontend organized in layers**: an `api/` layer for HTTP, `composables/`
+  for reusable reactive logic, `components/` for stateless UI, `views/` for
+  route-level composition.
+- **Error contract between backend and frontend** — backend returns
+  `{ error, message, details? }` consistently, frontend maps validation
+  details back to form field errors.
+
+## Getting started
 
 ### Prerequisites
 
 - Python 3.11 or newer
+- Node.js 20 or newer
 - Git
 
-### Setup
-
-1. Clone the repository:
-
-   ```bash
-   git clone <repo-url>
-   cd expense-tracker
-   ```
-
-2. Create and activate a virtual environment:
-
-   ```bash
-   python -m venv venv
-   # Windows (PowerShell)
-   .\venv\Scripts\Activate.ps1
-   # macOS / Linux
-   source venv/bin/activate
-   ```
-
-3. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Initialize the database:
-
-   ```bash
-   cd backend
-   flask db upgrade
-   ```
-
-5. Start the development server:
-
-   ```bash
-   flask run
-   ```
-
-   The API is now available at `http://localhost:5000`. Try it:
-
-   ```bash
-   curl http://localhost:5000/
-   # {"status": "ok", "service": "expense-tracker-api"}
-   ```
-
-### Configuration
-
-Configuration is read from environment variables:
-
-| Variable       | Default                              | Description                   |
-|----------------|--------------------------------------|-------------------------------|
-| `SECRET_KEY`   | `dev-key-change-me`                  | Flask session/signing key     |
-| `DATABASE_URL` | `sqlite:///instance/expenses.db`     | SQLAlchemy database URI       |
-
-To use PostgreSQL instead of SQLite:
+### Backend
 
 ```bash
-# Example
+git clone <repo-url>
+cd expense-tracker
+python -m venv venv
+# Windows:     .\venv\Scripts\Activate.ps1
+# macOS/Linux: source venv/bin/activate
+pip install -r requirements.txt
+
+cd backend
+flask db upgrade            # create the database
+python seed.py              # optional: load example data
+flask run                   # starts on http://localhost:5000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                 # starts on http://localhost:5173
+```
+
+Vite proxies `/api/*` requests to the Flask backend, so no CORS configuration
+is needed during development.
+
+## API reference
+
+See [API.md](./API.md) for the full REST API specification — endpoints,
+request/response schemas, query parameters, and error codes.
+
+Quick overview:
+
+| Method | Endpoint                    | Purpose                           |
+|--------|-----------------------------|-----------------------------------|
+| GET    | `/api/categories`           | List all categories               |
+| POST   | `/api/categories`           | Create a category                 |
+| PUT    | `/api/categories/<id>`      | Update a category (partial)       |
+| DELETE | `/api/categories/<id>`      | Delete a category and its data    |
+| GET    | `/api/transactions`         | List transactions with filtering  |
+| POST   | `/api/transactions`         | Create a transaction              |
+| PUT    | `/api/transactions/<id>`    | Update a transaction (partial)    |
+| DELETE | `/api/transactions/<id>`    | Delete a transaction              |
+| GET    | `/api/stats/summary`        | Monthly totals and counts         |
+| GET    | `/api/stats/by-category`    | Spending breakdown by category    |
+| GET    | `/api/stats/trend`          | Time-series data for charts       |
+
+## Configuration
+
+| Variable       | Default                              | Description                    |
+|----------------|--------------------------------------|--------------------------------|
+| `SECRET_KEY`   | `dev-key-change-me`                  | Flask signing key              |
+| `DATABASE_URL` | `sqlite:///instance/expenses.db`     | SQLAlchemy connection string   |
+
+To use PostgreSQL:
+
+```bash
 export DATABASE_URL="postgresql://user:password@localhost/expenses"
 flask db upgrade
 flask run
 ```
 
-## API reference
-
-See [API.md](./API.md) for the full REST API specification, including request
-and response schemas, query parameters, and error codes.
-
-Quick overview:
-
-- `GET/POST/PUT/DELETE /api/categories` — manage expense categories
-- `GET/POST/PUT/DELETE /api/transactions` — manage transactions, with
-  filtering by date range, category, and description
-- `GET /api/stats/summary` — monthly totals, count, average
-- `GET /api/stats/by-category` — spending breakdown by category
-- `GET /api/stats/trend` — time-series spending data
-
-## Development notes
-
-- Database migrations are managed by Flask-Migrate (Alembic). After changing
-  a model, run `flask db migrate -m "describe change"` then
-  `flask db upgrade`.
-- All input validation is handled by Pydantic schemas in `app/schemas.py`.
-  Endpoints should not contain manual validation logic.
-- Error responses follow a consistent JSON format (see API.md). Custom error
-  handlers are registered in `app/errors.py`.
-- SQLite foreign key enforcement is explicitly enabled via a connection-level
-  `PRAGMA foreign_keys=ON` listener in `app/extensions.py`.
-- Monetary amounts are stored as `Numeric(12, 2)` and serialized as strings
-  to prevent floating-point precision loss.
-
-## Status
-
-- [x] Backend: categories CRUD
-- [x] Backend: transactions CRUD with filtering
-- [x] Backend: statistics endpoints
-- [ ] Frontend: Vue 3 application
-- [ ] Frontend: dashboard with charts
-- [ ] End-to-end testing
-
 ## License
 
-Personal portfolio project.
+Personal portfolio project — free to use as a reference.

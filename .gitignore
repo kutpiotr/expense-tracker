@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 venv/
 .venv/
+.pytest_cache/
 
 # Environment
 .env
@@ -21,9 +22,13 @@ instance/
 Thumbs.db
 .DS_Store
 
-# Node (na później, dla frontu)
+# Node
 node_modules/
 dist/
 dist-ssr/
 *.local
 .vite/
+
+# Logs
+*.log
+npm-debug.log*
