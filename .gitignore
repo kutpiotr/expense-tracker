@@ -24,3 +24,6 @@ Thumbs.db
 # Node (na później, dla frontu)
 node_modules/
 dist/
+dist-ssr/
+*.local
+.vite/
